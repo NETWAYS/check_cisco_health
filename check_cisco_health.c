@@ -94,6 +94,7 @@ struct cisco_env_table {
 };
 
 netsnmp_session *start_session(netsnmp_session *, char *, char *);
+netsnmp_session *start_session_v3(netsnmp_session *, char *, char *, char *, char *, char *, char *);
 int usage(char *);
 int addstr(char **, size_t *, const char *, ...);
 int parseoids(int, char *, struct OIDStruct *);
@@ -121,6 +122,7 @@ main(int argc, char *argv[])
 	int		endoftable = 0;
 	int		opt;
 	char		*hostname=0, *community=0;
+	char *user = 0, *auth_proto = 0, *auth_pass = 0, *priv_proto = 0, *priv_pass = 0;
 
 	struct OIDStruct	*OIDp, *OIDtable;
 	struct OIDStruct	lastOid; /* save the last OID retrieved in case our bulk get was insufficient */
@@ -153,20 +155,20 @@ main(int argc, char *argv[])
 	char *outstrp = outstr;
 	size_t outstrsize = sizeof(outstr);
 
-        char extstr[MAX_STRING];
-        extstr[0]=0;
-        char *extstrp = extstr;
-        size_t extstrsize = sizeof(extstr);
+		char extstr[MAX_STRING];
+		extstr[0]=0;
+		char *extstrp = extstr;
+		size_t extstrsize = sizeof(extstr);
 
-        char perfstr[MAX_STRING];
-        perfstr[0]=0;
-        char *perfstrp = perfstr;
-        size_t perfstrsize = sizeof(perfstr);
+		char perfstr[MAX_STRING];
+		perfstr[0]=0;
+		char *perfstrp = perfstr;
+		size_t perfstrsize = sizeof(perfstr);
 
 
 	/* parse options */
 	
-	while ((opt = getopt(argc, argv, "c:h:t:?")) != -1)
+	while ((opt = getopt(argc, argv, "c:h:j:J:k:K:t:u:?")) != -1)
 	{
 		switch(opt)
 		{
@@ -176,8 +178,23 @@ main(int argc, char *argv[])
 			case 'h':
 				hostname = optarg;
 				break;
+			case 'j':
+				auth_proto = optarg;
+				break;
+			case 'J':
+				auth_pass = optarg;
+				break;
+			case 'k':
+				priv_proto = optarg;
+				break;
+			case 'K':
+				priv_pass = optarg;
+				break;
 			case 't':
 				timeout = strtol(optarg, NULL, 10) * 1000UL;
+				break;
+			case 'u':
+				user = optarg;
 				break;
 			case '?':
 			default:
@@ -186,7 +203,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (!(hostname && community))
+	if (!(hostname && (community || user)))
 	{
 		exit(usage(argv[0]));
 	}
@@ -197,8 +214,11 @@ main(int argc, char *argv[])
 	{
 		setenv("MIBS", "", 1);
 	}
-
-	ss=start_session(&session, community, hostname);
+	if (user)
+		/* use snmpv3 */
+		ss=start_session_v3(&session, user, auth_proto, auth_pass, priv_proto, priv_pass, hostname);
+	else
+		ss=start_session(&session, community, hostname);
 
 	/* allocate the space for the OIDs */
 	OIDp = (struct OIDStruct *) calloc((sizeof(cisco_env) / sizeof(char *)), sizeof(*OIDp));
@@ -434,11 +454,99 @@ netsnmp_session *start_session(netsnmp_session *session, char *community, char *
 
 }
 
+netsnmp_session *start_session_v3(netsnmp_session *session, char *user, char *auth_proto, char *auth_pass, char *priv_proto, char *priv_pass, char *hostname)
+{
+	netsnmp_session *ss;
+
+	init_snmp("snmp_bulkget");
+
+	snmp_sess_init(session);
+	session->peername = hostname;
+
+	session->version = SNMP_VERSION_3;
+
+	session->securityName = user;
+	session->securityModel = SNMP_SEC_MODEL_USM;
+	session->securityNameLen = strlen(user);
+
+
+	if (priv_proto && priv_pass) {
+		if (!strcmp(priv_proto, "AES")) {
+			session->securityPrivProto = snmp_duplicate_objid(usmAESPrivProtocol, USM_PRIV_PROTO_AES_LEN);
+			session->securityPrivProtoLen = USM_PRIV_PROTO_AES_LEN;
+		} else if (!strcmp(priv_proto, "DES")) {
+			session->securityPrivProto = snmp_duplicate_objid(usmDESPrivProtocol, USM_PRIV_PROTO_DES_LEN);
+			session->securityPrivProtoLen = USM_PRIV_PROTO_DES_LEN;
+		} else {
+			printf("Unknown priv protocol %s\n", priv_proto);
+			exit(3);
+		}
+		session->securityLevel = SNMP_SEC_LEVEL_AUTHPRIV;
+		session->securityPrivKeyLen = USM_PRIV_KU_LEN;
+	} else {
+		session->securityLevel = SNMP_SEC_LEVEL_AUTHNOPRIV;
+		session->securityPrivKeyLen = 0;
+	}
+
+
+	if (auth_proto && auth_pass) {
+		if (!strcmp(auth_proto, "SHA")) {
+			session->securityAuthProto = snmp_duplicate_objid(usmHMACSHA1AuthProtocol, USM_AUTH_PROTO_SHA_LEN);
+			session->securityAuthProtoLen = USM_AUTH_PROTO_SHA_LEN;
+		} else if (!strcmp(auth_proto, "MD5")) {
+			session->securityAuthProto = snmp_duplicate_objid(usmHMACMD5AuthProtocol, USM_AUTH_PROTO_MD5_LEN);
+			session->securityAuthProtoLen = USM_AUTH_PROTO_MD5_LEN;
+		} else {
+			printf("Unknown auth protocol %s\n", auth_proto);
+			exit(3);
+		}
+		session->securityAuthKeyLen = USM_AUTH_KU_LEN;
+	} else {
+		session->securityLevel = SNMP_SEC_LEVEL_NOAUTH;
+		session->securityAuthKeyLen = 0;
+		session->securityPrivKeyLen = 0;
+	}
+
+	if ((session->securityLevel == SNMP_SEC_LEVEL_AUTHPRIV) || (session->securityLevel == SNMP_SEC_LEVEL_AUTHNOPRIV)) {
+		if(generate_Ku(session->securityAuthProto, session->securityAuthProtoLen, (unsigned char *)auth_pass, strlen(auth_pass),
+					session->securityAuthKey, &session->securityAuthKeyLen) != SNMPERR_SUCCESS)
+			printf("Error generating AUTH sess\n");
+		if (session->securityLevel == SNMP_SEC_LEVEL_AUTHPRIV) {
+			if (generate_Ku(session->securityAuthProto, session->securityAuthProtoLen, (unsigned char *)priv_pass, strlen(priv_pass),
+						session->securityPrivKey, &session->securityPrivKeyLen) != SNMPERR_SUCCESS)
+				printf("Error generating PRIV sess\n");
+		}
+	}
+
+	session->timeout = timeout;
+
+	/*
+	 * Open the session
+	 */
+	SOCK_STARTUP;
+	ss = snmp_open(session);    /* establish the session */
+
+	if (!ss) {
+		snmp_sess_perror("snmp_bulkget", session);
+		SOCK_CLEANUP;
+		exit(1);
+	}
+
+	return(ss);
+
+}
+
 int usage(char *progname)
 {
-	printf("Usage: %s -c <community> -h <hostname>", progname);
+	printf("Usage: %s -h <hostname>", progname);
 	printf("\n");
-	printf(" -t <timeout>\t\tsets the SNMP timeout (in ms)\n");
+	printf(" -c\t\tcommunity (default public)\n");
+	printf(" -j\t\tSNMPv3 Auth Protocol (SHA|MD5)\n");
+	printf(" -J\t\tSNMPv3 Auth Phrase\n");
+	printf(" -k\t\tSNMPv3 Privacy Protocol (AES|DES)\n");
+	printf(" -K\t\tSNMPv3 Privacy Phrase\n");
+	printf(" -t\t\tsets the SNMP timeout (in ms)\n");
+	printf(" -u\t\tSNMPv3 User\n");
 	printf("\n");
 	return 3;
 }
