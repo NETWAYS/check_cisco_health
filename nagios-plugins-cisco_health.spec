@@ -23,8 +23,8 @@ Requires:       nagios-common
 %endif
 
 %description
-This plugin uses the bulk-get to get the enviroment
-state of cisco network equipment. 
+This plugin uses the bulk-get to get the environment
+state of cisco network equipment.
 
 %prep
 %setup -q -n %{lname}-%{version}
