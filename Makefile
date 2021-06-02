@@ -26,7 +26,7 @@ build: $(TARGETS)
 check_cisco_health: check_cisco_health.o
 	$(CC) -o check_cisco_health $(OBJS1) $(BUILDLIBS)
 
-strip:
+strip: check_cisco_health
 	strip check_cisco_health
 
 debug: CFLAGS += -DDEBUG
