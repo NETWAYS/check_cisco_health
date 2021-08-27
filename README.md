@@ -1,7 +1,7 @@
 check_cisco_health
 ==================
 
-This plugin uses the bulk-get to get the enviroment state of cisco network equipment.
+This plugin uses the bulk-get to get the environment state of cisco network equipment.
 
 ### Installation
 
@@ -17,4 +17,4 @@ In order to compile this plugin you will need the NET SNMP Development package (
 	Options:
 	-h	address of device
 	-c	community of the device with read permissions
-	-t	sets the timeout (in ms)	
+	-t	sets the timeout (in ms)
