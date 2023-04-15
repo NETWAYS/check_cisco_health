@@ -1,40 +1,40 @@
 /*
  *
  * COPYRIGHT:
- *  
+ *
  * This software is Copyright (c) 2011,2012 NETWAYS GmbH, William Preston
  *                                <support@netways.de>
- * 
+ *
  * (Except where explicitly superseded by other copyright notices)
- * 
- * 
+ *
+ *
  * LICENSE:
- * 
+ *
  * This work is made available to you under the terms of Version 2 of
  * the GNU General Public License. A copy of that license should have
  * been provided with this software, but in any event can be snarfed
  * from http://www.fsf.org.
- * 
+ *
  * This work is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301 or visit their web page on the internet at
  * http://www.fsf.org.
- * 
- * 
+ *
+ *
  * CONTRIBUTION SUBMISSION POLICY:
- * 
+ *
  * (The following paragraph is not intended to limit the rights granted
  * to you to modify and distribute this software under the terms of
  * the GNU General Public License and is only of importance to you if
  * you choose to contribute your changes and enhancements to the
  * community by submitting them to NETWAYS GmbH.)
- * 
+ *
  * By intentionally submitting any modifications, corrections or
  * derivatives to this work, or any other work intended for use with
  * this Software, to NETWAYS GmbH, you confirm that
@@ -81,7 +81,7 @@ struct table_list {
 	struct cisco_env_table*	table;
 	struct table_list*		next;
 };
-	
+
 struct cisco_env_table {
 	int	index;
 	char	descr[60];
@@ -104,7 +104,7 @@ struct table_list* table_listp = 0;
 
 unsigned long timeout = DFLT_TIMEOUT;
 
-int 
+int
 main(int argc, char *argv[])
 {
 	netsnmp_session		session, *ss;
@@ -126,7 +126,7 @@ main(int argc, char *argv[])
 
 	struct OIDStruct	*OIDp, *OIDtable;
 	struct OIDStruct	lastOid; /* save the last OID retrieved in case our bulk get was insufficient */
-	
+
 	struct table_list*	ptr;
 
 	static char		*cisco_env[] =
@@ -167,7 +167,7 @@ main(int argc, char *argv[])
 
 
 	/* parse options */
-	
+
 	while ((opt = getopt(argc, argv, "c:h:j:J:k:K:t:u:?")) != -1)
 	{
 		switch(opt)
@@ -340,7 +340,7 @@ main(int argc, char *argv[])
 
 
 	free(OIDp);
-	
+
 
 	for (ptr=table_listp; ptr; ptr=ptr->next)
 	{
@@ -390,13 +390,13 @@ main(int argc, char *argv[])
 				ptr->table->value = 0;
 				break;
 		}
-		
+
 	}
 
-	
+
 	if (errorflag)
 	{
-		printf("CRITICAL:"); 
+		printf("CRITICAL:");
 	} else if (warnflag) {
 		printf("WARNING:");
 	} else if (table_listp){
@@ -570,7 +570,7 @@ int addstr(char **strp, size_t *strs, const char *format, ...)
 		*strs = 0;
 		return(1);
 	}
-	
+
 	*strs = (*strs - written);
 	*strp = (*strp + written);
 	return(0);
@@ -585,7 +585,7 @@ int addval(int env, int index, int var, netsnmp_variable_list *result)
 		TEMP		= 1,
 		FAN		= 2,
 		PSU		= 3
-	
+
 	};
 
 	/* check if there is already a value */

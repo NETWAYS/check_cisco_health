@@ -1,6 +1,7 @@
 check_cisco_health
 ==================
 
+<<<<<<< HEAD
 This plugin uses the bulk-get to get the enviroment state of cisco network equipment.
 It supports SNMP version 2c and 3.
 
