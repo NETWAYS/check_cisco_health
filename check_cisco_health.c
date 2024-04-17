@@ -91,8 +91,7 @@ struct cisco_env_table {
 };
 
 netsnmp_session *start_session(netsnmp_session *, char *, char *);
-netsnmp_session *start_session_v3(netsnmp_session *, char *, char *, char *,
-								  char *, char *, char *);
+netsnmp_session *start_session_v3(netsnmp_session *, char *, char *, char *, char *, char *, char *);
 int usage(char *);
 int addstr(char **, size_t *, const char *, ...);
 int parseoids(int, char *, struct OIDStruct *);
@@ -117,8 +116,7 @@ int main(int argc, char *argv[]) {
 	int endoftable = 0;
 	int opt;
 	char *hostname = 0, *community = 0;
-	char *user = 0, *auth_proto = 0, *auth_pass = 0, *priv_proto = 0,
-		 *priv_pass = 0;
+	char *user = 0, *auth_proto = 0, *auth_pass = 0, *priv_proto = 0, *priv_pass = 0;
 
 	struct OIDStruct *OIDp, *OIDtable;
 	struct OIDStruct lastOid; /* save the last OID retrieved in case our bulk
@@ -127,9 +125,8 @@ int main(int argc, char *argv[]) {
 	struct table_list *ptr;
 
 	static char *cisco_env[] = {".1.3.6.1.4.1.9.9.13.1"};
-	static char *cisco_env_tables[] = {
-		".1.3.6.1.4.1.9.9.13.1.2", ".1.3.6.1.4.1.9.9.13.1.3",
-		".1.3.6.1.4.1.9.9.13.1.4", ".1.3.6.1.4.1.9.9.13.1.5"};
+	static char *cisco_env_tables[] = {".1.3.6.1.4.1.9.9.13.1.2", ".1.3.6.1.4.1.9.9.13.1.3", ".1.3.6.1.4.1.9.9.13.1.4",
+									   ".1.3.6.1.4.1.9.9.13.1.5"};
 	static char *table_names[] = {"Voltage", "Temperature", "Fan", "PSU"};
 
 	char outstr[MAX_STRING];
@@ -191,22 +188,18 @@ int main(int argc, char *argv[]) {
 	}
 	if (user)
 		/* use snmpv3 */
-		ss = start_session_v3(&session, user, auth_proto, auth_pass, priv_proto,
-							  priv_pass, hostname);
+		ss = start_session_v3(&session, user, auth_proto, auth_pass, priv_proto, priv_pass, hostname);
 	else
 		ss = start_session(&session, community, hostname);
 
 	/* allocate the space for the OIDs */
-	OIDp = (struct OIDStruct *)calloc((sizeof(cisco_env) / sizeof(char *)),
-									  sizeof(*OIDp));
-	OIDtable = (struct OIDStruct *)calloc(
-		(sizeof(cisco_env_tables) / sizeof(char *)), sizeof(*OIDtable));
+	OIDp = (struct OIDStruct *)calloc((sizeof(cisco_env) / sizeof(char *)), sizeof(*OIDp));
+	OIDtable = (struct OIDStruct *)calloc((sizeof(cisco_env_tables) / sizeof(char *)), sizeof(*OIDtable));
 
 	/* parse the table oids for comparison later */
 	for (size_t i = 0; i < (sizeof(cisco_env_tables) / sizeof(char *)); i++) {
 		OIDtable[i].name_len = MAX_OID_LEN;
-		if (!snmp_parse_oid(cisco_env_tables[i], OIDtable[i].name,
-							&OIDtable[i].name_len)) {
+		if (!snmp_parse_oid(cisco_env_tables[i], OIDtable[i].name, &OIDtable[i].name_len)) {
 			snmp_perror(cisco_env_tables[i]);
 			SOCK_CLEANUP;
 			exit(1);
@@ -221,8 +214,7 @@ int main(int argc, char *argv[]) {
 
 			for (size_t i = 0; i < (sizeof(cisco_env) / sizeof(char *)); i++) {
 				OIDp[i].name_len = MAX_OID_LEN;
-				if (!snmp_parse_oid(cisco_env[i], OIDp[i].name,
-									&OIDp[i].name_len)) {
+				if (!snmp_parse_oid(cisco_env[i], OIDp[i].name, &OIDp[i].name_len)) {
 					snmp_perror(cisco_env[i]);
 					SOCK_CLEANUP;
 					exit(1);
@@ -255,13 +247,10 @@ int main(int argc, char *argv[]) {
 				 */
 
 				/* save the OID in case we need additional packets */
-				memcpy(lastOid.name, vars->name,
-					   (vars->name_length * sizeof(oid)));
+				memcpy(lastOid.name, vars->name, (vars->name_length * sizeof(oid)));
 				lastOid.name_len = vars->name_length;
 				/* print_objid(lastOid.name, lastOid.name_len); */
-				if (vars->name_length < OIDp[0].name_len ||
-					(memcmp(OIDp[0].name, vars->name,
-							OIDp[0].name_len * sizeof(oid)))) {
+				if (vars->name_length < OIDp[0].name_len || (memcmp(OIDp[0].name, vars->name, OIDp[0].name_len * sizeof(oid)))) {
 #ifdef DEBUG
 					printf("reached end of table\n");
 #endif
@@ -269,10 +258,8 @@ int main(int argc, char *argv[]) {
 					break;
 				}
 
-				for (size_t i = 0;
-					 i < (sizeof(cisco_env_tables) / sizeof(char *)); i++) {
-					if (!memcmp(OIDtable[i].name, vars->name,
-								OIDtable[i].name_len * sizeof(oid))) {
+				for (size_t i = 0; i < (sizeof(cisco_env_tables) / sizeof(char *)); i++) {
+					if (!memcmp(OIDtable[i].name, vars->name, OIDtable[i].name_len * sizeof(oid))) {
 						index = (int)vars->name[(vars->name_length - 1)];
 						var = (int)vars->name[(vars->name_length - 2)];
 						addval(i, index, var, vars);
@@ -286,8 +273,7 @@ int main(int argc, char *argv[]) {
 			 */
 
 			if (status == STAT_SUCCESS)
-				printf("Error in packet\nReason: %s\n",
-					   snmp_errstring(response->errstat));
+				printf("Error in packet\nReason: %s\n", snmp_errstring(response->errstat));
 			else if (status == STAT_TIMEOUT)
 				printf("Timeout: No response from %s.\n", session.peername);
 			else
@@ -308,14 +294,11 @@ int main(int argc, char *argv[]) {
 
 		switch (ptr->table->state) {
 		case 1:
-			addstr(&extstrp, &extstrsize, "[OK] %s(%s)", table_names[ptr->type],
-				   ptr->table->descr);
+			addstr(&extstrp, &extstrsize, "[OK] %s(%s)", table_names[ptr->type], ptr->table->descr);
 			if ((ptr->type == 0 || ptr->type == 1) && (ptr->table->value > 0)) {
-				addstr(&extstrp, &extstrsize, " is %d%c\n", ptr->table->value,
-					   (ptr->type ? 'C' : 'V'));
+				addstr(&extstrp, &extstrsize, " is %d%c\n", ptr->table->value, (ptr->type ? 'C' : 'V'));
 				/* now add perfdata */
-				addstr(&perfstrp, &perfstrsize, " %s_%d=%d%c",
-					   table_names[ptr->type], ptr->index, ptr->table->value,
+				addstr(&perfstrp, &perfstrsize, " %s_%d=%d%c", table_names[ptr->type], ptr->index, ptr->table->value,
 					   ptr->type ? 'C' : 'V');
 			} else {
 				addstr(&extstrp, &extstrsize, " is normal\n");
@@ -323,13 +306,10 @@ int main(int argc, char *argv[]) {
 			break;
 		case 2:
 			warnflag++;
-			addstr(&outstrp, &outstrsize, " %s in state warning",
-				   ptr->table->descr);
-			addstr(&extstrp, &extstrsize, "[WARNING] %s(%s)",
-				   table_names[ptr->type], ptr->table->descr);
+			addstr(&outstrp, &outstrsize, " %s in state warning", ptr->table->descr);
+			addstr(&extstrp, &extstrsize, "[WARNING] %s(%s)", table_names[ptr->type], ptr->table->descr);
 			if (ptr->type == 0 || ptr->type == 1) {
-				addstr(&extstrp, &extstrsize, " is %d%c\n", ptr->table->value,
-					   (ptr->type ? 'C' : 'V'));
+				addstr(&extstrp, &extstrsize, " is %d%c\n", ptr->table->value, (ptr->type ? 'C' : 'V'));
 			} else {
 				addstr(&extstrp, &extstrsize, " in state warning\n");
 			}
@@ -337,13 +317,10 @@ int main(int argc, char *argv[]) {
 		case 3:
 		case 4:
 			errorflag++;
-			addstr(&outstrp, &outstrsize, " %s in state critical",
-				   ptr->table->descr);
-			addstr(&extstrp, &extstrsize, "[CRITICAL] %s(%s)",
-				   table_names[ptr->type], ptr->table->descr);
+			addstr(&outstrp, &outstrsize, " %s in state critical", ptr->table->descr);
+			addstr(&extstrp, &extstrsize, "[CRITICAL] %s(%s)", table_names[ptr->type], ptr->table->descr);
 			if (ptr->type == 0 || ptr->type == 1) {
-				addstr(&extstrp, &extstrsize, " is %d%c\n", ptr->table->value,
-					   (ptr->type ? 'C' : 'V'));
+				addstr(&extstrp, &extstrsize, " is %d%c\n", ptr->table->value, (ptr->type ? 'C' : 'V'));
 			} else {
 				addstr(&extstrp, &extstrsize, " in state critical\n");
 			}
@@ -352,8 +329,7 @@ int main(int argc, char *argv[]) {
 			/* PSU not present */
 			break;
 		default:
-			addstr(&extstrp, &extstrsize, "[OK] %s(%s) in state unknown\n",
-				   table_names[ptr->type], ptr->table->descr);
+			addstr(&extstrp, &extstrsize, "[OK] %s(%s) in state unknown\n", table_names[ptr->type], ptr->table->descr);
 			ptr->table->value = 0;
 			break;
 		}
@@ -377,8 +353,7 @@ int main(int argc, char *argv[]) {
 	return ((errorflag) ? 2 : ((warnflag) ? 1 : 0));
 }
 
-netsnmp_session *start_session(netsnmp_session *session, char *community,
-							   char *hostname) {
+netsnmp_session *start_session(netsnmp_session *session, char *community, char *hostname) {
 
 	netsnmp_session *ss;
 
@@ -414,10 +389,8 @@ netsnmp_session *start_session(netsnmp_session *session, char *community,
 	return (ss);
 }
 
-netsnmp_session *start_session_v3(netsnmp_session *session, char *user,
-								  char *auth_proto, char *auth_pass,
-								  char *priv_proto, char *priv_pass,
-								  char *hostname) {
+netsnmp_session *start_session_v3(netsnmp_session *session, char *user, char *auth_proto, char *auth_pass, char *priv_proto,
+								  char *priv_pass, char *hostname) {
 	netsnmp_session *ss;
 
 	init_snmp("snmp_bulkget");
@@ -433,12 +406,10 @@ netsnmp_session *start_session_v3(netsnmp_session *session, char *user,
 
 	if (priv_proto && priv_pass) {
 		if (!strcmp(priv_proto, "AES")) {
-			session->securityPrivProto = snmp_duplicate_objid(
-				usmAESPrivProtocol, USM_PRIV_PROTO_AES_LEN);
+			session->securityPrivProto = snmp_duplicate_objid(usmAESPrivProtocol, USM_PRIV_PROTO_AES_LEN);
 			session->securityPrivProtoLen = USM_PRIV_PROTO_AES_LEN;
 		} else if (!strcmp(priv_proto, "DES")) {
-			session->securityPrivProto = snmp_duplicate_objid(
-				usmDESPrivProtocol, USM_PRIV_PROTO_DES_LEN);
+			session->securityPrivProto = snmp_duplicate_objid(usmDESPrivProtocol, USM_PRIV_PROTO_DES_LEN);
 			session->securityPrivProtoLen = USM_PRIV_PROTO_DES_LEN;
 		} else {
 			printf("Unknown priv protocol %s\n", priv_proto);
@@ -453,12 +424,10 @@ netsnmp_session *start_session_v3(netsnmp_session *session, char *user,
 
 	if (auth_proto && auth_pass) {
 		if (!strcmp(auth_proto, "SHA")) {
-			session->securityAuthProto = snmp_duplicate_objid(
-				usmHMACSHA1AuthProtocol, USM_AUTH_PROTO_SHA_LEN);
+			session->securityAuthProto = snmp_duplicate_objid(usmHMACSHA1AuthProtocol, USM_AUTH_PROTO_SHA_LEN);
 			session->securityAuthProtoLen = USM_AUTH_PROTO_SHA_LEN;
 		} else if (!strcmp(auth_proto, "MD5")) {
-			session->securityAuthProto = snmp_duplicate_objid(
-				usmHMACMD5AuthProtocol, USM_AUTH_PROTO_MD5_LEN);
+			session->securityAuthProto = snmp_duplicate_objid(usmHMACMD5AuthProtocol, USM_AUTH_PROTO_MD5_LEN);
 			session->securityAuthProtoLen = USM_AUTH_PROTO_MD5_LEN;
 		} else {
 			printf("Unknown auth protocol %s\n", auth_proto);
@@ -471,20 +440,13 @@ netsnmp_session *start_session_v3(netsnmp_session *session, char *user,
 		session->securityPrivKeyLen = 0;
 	}
 
-	if ((session->securityLevel == SNMP_SEC_LEVEL_AUTHPRIV) ||
-		(session->securityLevel == SNMP_SEC_LEVEL_AUTHNOPRIV)) {
-		if (generate_Ku(session->securityAuthProto,
-						session->securityAuthProtoLen,
-						(unsigned char *)auth_pass, strlen(auth_pass),
-						session->securityAuthKey,
-						&session->securityAuthKeyLen) != SNMPERR_SUCCESS)
+	if ((session->securityLevel == SNMP_SEC_LEVEL_AUTHPRIV) || (session->securityLevel == SNMP_SEC_LEVEL_AUTHNOPRIV)) {
+		if (generate_Ku(session->securityAuthProto, session->securityAuthProtoLen, (unsigned char *)auth_pass, strlen(auth_pass),
+						session->securityAuthKey, &session->securityAuthKeyLen) != SNMPERR_SUCCESS)
 			printf("Error generating AUTH sess\n");
 		if (session->securityLevel == SNMP_SEC_LEVEL_AUTHPRIV) {
-			if (generate_Ku(session->securityAuthProto,
-							session->securityAuthProtoLen,
-							(unsigned char *)priv_pass, strlen(priv_pass),
-							session->securityPrivKey,
-							&session->securityPrivKeyLen) != SNMPERR_SUCCESS)
+			if (generate_Ku(session->securityAuthProto, session->securityAuthProtoLen, (unsigned char *)priv_pass,
+							strlen(priv_pass), session->securityPrivKey, &session->securityPrivKeyLen) != SNMPERR_SUCCESS)
 				printf("Error generating PRIV sess\n");
 		}
 	}
@@ -559,8 +521,7 @@ int addval(int env, int index, int var, netsnmp_variable_list *result) {
 	}
 	if (!ptr) {
 		ptr = (struct table_list *)malloc(sizeof(struct table_list));
-		ptr->table =
-			(struct cisco_env_table *)malloc(sizeof(struct cisco_env_table));
+		ptr->table = (struct cisco_env_table *)malloc(sizeof(struct cisco_env_table));
 		ptr->next = 0;
 		ptr->type = env;
 		ptr->index = index;
@@ -654,11 +615,10 @@ int parseoids(int i, char *oid_list, struct OIDStruct *query) {
 
 /* only use for strings we already know the size of */
 void strcpy_nospaces(char *dest, char *src) {
-	static unsigned char allowed[256] =
-		"_________________________________!_#_%__()*+,-.-0123456789___=_?@"
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^__abcdefghijklmnopqrstuvwxyz{_}________"
-		"______________________________________________________________________"
-		"____________________________________________________";
+	static unsigned char allowed[256] = "_________________________________!_#_%__()*+,-.-0123456789___=_?@"
+										"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^__abcdefghijklmnopqrstuvwxyz{_}________"
+										"______________________________________________________________________"
+										"____________________________________________________";
 
 	while (*src) {
 		*(dest++) = allowed[(unsigned char)*(src++)];
