@@ -7,7 +7,7 @@
 # file.
 #
 
-CC=gcc
+CC ?= gcc
 
 OBJS1=check_cisco_health.o
 TARGETS=check_cisco_health
