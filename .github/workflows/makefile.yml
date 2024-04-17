@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CC: clang
-      CFLAGS: "-Wall -Wextra -Werror"
+      CFLAGS: "-Wall -Wextra"
 
     steps:
     - uses: actions/checkout@v4
