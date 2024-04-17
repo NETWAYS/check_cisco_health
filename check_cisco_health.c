@@ -112,19 +112,19 @@ main(int argc, char *argv[])
 	netsnmp_pdu		*response;
 	netsnmp_variable_list	*vars;
 
-	int             status;
-	int             count = 0;
-	int             index = 0;
-	int		var = 0;
-	int             i, j, k;
-	int		errorflag = 0;
-	int		warnflag = 0;
-	int		endoftable = 0;
-	int		opt;
-	char		*hostname=0, *community=0;
-	char *user = 0, *auth_proto = 0, *auth_pass = 0, *priv_proto = 0, *priv_pass = 0;
+        int status;
+        int count = 0;
+        int index = 0;
+        int var = 0;
+        int errorflag = 0;
+        int warnflag = 0;
+        int endoftable = 0;
+        int opt;
+        char *hostname = 0, *community = 0;
+        char *user = 0, *auth_proto = 0, *auth_pass = 0, *priv_proto = 0,
+             *priv_pass = 0;
 
-	struct OIDStruct	*OIDp, *OIDtable;
+        struct OIDStruct	*OIDp, *OIDtable;
 	struct OIDStruct	lastOid; /* save the last OID retrieved in case our bulk get was insufficient */
 
 	struct table_list*	ptr;
@@ -225,7 +225,7 @@ main(int argc, char *argv[])
 	OIDtable = (struct OIDStruct *) calloc((sizeof(cisco_env_tables) / sizeof(char *)), sizeof(*OIDtable));
 
 	/* parse the table oids for comparison later */
-	for (i = 0; i < (sizeof(cisco_env_tables) / sizeof(char *)); i++)
+	for (size_t i = 0; i < (sizeof(cisco_env_tables) / sizeof(char *)); i++)
 	{
 		OIDtable[i].name_len = MAX_OID_LEN;
 		if (!snmp_parse_oid(cisco_env_tables[i], OIDtable[i].name, &OIDtable[i].name_len))
@@ -245,7 +245,7 @@ main(int argc, char *argv[])
 			pdu->non_repeaters = 0;
 			pdu->max_repetitions = MAX_ITEMS;
 
-			for (i = 0; i < (sizeof(cisco_env) / sizeof(char *)); i++)
+			for (size_t i = 0; i < (sizeof(cisco_env) / sizeof(char *)); i++)
 			{
 				OIDp[i].name_len = MAX_OID_LEN;
 				if (!snmp_parse_oid(cisco_env[i], OIDp[i].name, &OIDp[i].name_len))
@@ -277,7 +277,7 @@ main(int argc, char *argv[])
 			vars = response->variables;
 
 
-			for (vars = vars; vars; vars = vars->next_variable) {
+			for (; vars; vars = vars->next_variable) {
 				count++;
 				/*
 				 * if the next OID is shorter
@@ -298,7 +298,7 @@ main(int argc, char *argv[])
 					break;
 				}
 
-				for (i = 0; i < (sizeof(cisco_env_tables) / sizeof(char *)); i++)
+				for (size_t i = 0; i < (sizeof(cisco_env_tables) / sizeof(char *)); i++)
 				{
 					if (!memcmp(OIDtable[i].name, vars->name, OIDtable[i].name_len*sizeof(oid)))
 					{
