@@ -20,14 +20,11 @@ BUILDAGENTLIBS=`net-snmp-config --agent-libs`
 DLFLAGS=-fPIC -shared
 
 .PHONY: debug clean all
-all: build strip
+all: build
 build: $(TARGETS)
 
 check_cisco_health: check_cisco_health.o
 	$(CC) -o check_cisco_health $(OBJS1) $(BUILDLIBS)
-
-strip:
-	strip check_cisco_health
 
 debug: CFLAGS += -DDEBUG
 debug: CFLAGS += -O0
