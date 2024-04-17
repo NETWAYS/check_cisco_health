@@ -7,12 +7,12 @@
 # file.
 #
 
-CC=gcc
+CC ?= gcc
 
 OBJS1=check_cisco_health.o
 TARGETS=check_cisco_health
 
-CFLAGS=-I. `net-snmp-config --cflags`
+CFLAGS=-I. `net-snmp-config --cflags` -Wall -Wextra
 BUILDLIBS=`net-snmp-config --libs`
 BUILDAGENTLIBS=`net-snmp-config --agent-libs`
 
@@ -20,14 +20,11 @@ BUILDAGENTLIBS=`net-snmp-config --agent-libs`
 DLFLAGS=-fPIC -shared
 
 .PHONY: debug clean all
-all: build strip
+all: build
 build: $(TARGETS)
 
 check_cisco_health: check_cisco_health.o
 	$(CC) -o check_cisco_health $(OBJS1) $(BUILDLIBS)
-
-strip:
-	strip check_cisco_health
 
 debug: CFLAGS += -DDEBUG
 debug: CFLAGS += -O0
@@ -35,5 +32,5 @@ debug: clean all
 
 
 clean:
-	rm $(OBJS1) $(TARGETS)
+	rm -f $(OBJS1) $(TARGETS)
 

@@ -1,0 +1,37 @@
+name: Makefile CI
+
+on:
+  pull_request:
+    branches: [ "*" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CFLAGS: "-Wall -Wextra -Werror"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo .github/prepare_ubuntu.sh
+
+    - name: Make
+      run: make
+
+  clang-build:
+    runs-on: ubuntu-latest
+    env:
+      CC: clang
+      CFLAGS: "-Wall -Wextra -Werror"
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo .github/prepare_ubuntu.sh
+
+    - name: Make
+      run: make
