@@ -12,9 +12,10 @@ CC ?= gcc
 OBJS1=check_cisco_health.o
 TARGETS=check_cisco_health
 
-CFLAGS += -I. `net-snmp-config --cflags` -Wall -Wextra
-BUILDLIBS=`net-snmp-config --libs`
-BUILDAGENTLIBS=`net-snmp-config --agent-libs`
+NETSNMP_CONFIG_CFLAGS != net-snmp-config --cflags
+CFLAGS += -I. $(NETSNMP_CONFIG_CFLAGS) -Wall -Wextra
+BUILDLIBS != net-snmp-config --libs
+BUILDAGENTLIBS != net-snmp-config --agent-libs
 
 # shared library flags (assumes gcc)
 DLFLAGS=-fPIC -shared
