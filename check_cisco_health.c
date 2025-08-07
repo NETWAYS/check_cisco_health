@@ -2,7 +2,7 @@
  *
  * COPYRIGHT:
  *
- * This software is Copyright (c) 2011,2012 NETWAYS GmbH, William Preston
+ * This software is Copyright (c) 2011-2025 NETWAYS GmbH, William Preston
  *                                <support@netways.de>
  *
  * (Except where explicitly superseded by other copyright notices)
