@@ -90,20 +90,21 @@ struct cisco_env_table {
 	int source;
 };
 
-netsnmp_session *start_session(netsnmp_session *, char *, char *);
-netsnmp_session *start_session_v3(netsnmp_session *, char *, char *, char *, char *, char *,
-								  char *);
-int usage(char *);
-int addstr(char **, size_t *, const char *, ...);
-int parseoids(int, char *, struct OIDStruct *);
-void strcpy_nospaces(char *, char *);
-int addval(int env, int index, int var, netsnmp_variable_list *);
+netsnmp_session *start_session(netsnmp_session * /*session*/, char * /*community*/, char * /*hostname*/);
+netsnmp_session *start_session_v3(netsnmp_session * /*session*/, char * /*user*/, char * /*auth_proto*/, char * /*auth_pass*/, char * /*priv_proto*/, char * /*priv_pass*/,
+								  char * /*hostname*/);
+int usage(char * /*progname*/);
+int addstr(char ** /*strp*/, size_t * /*strs*/, const char * /*format*/, ...);
+int parseoids(int /*i*/, char * /*oid_list*/, struct OIDStruct * /*query*/);
+void strcpy_nospaces(char * /*dest*/, char * /*src*/);
+int addval(int env, int index, int var, netsnmp_variable_list * /*result*/);
 struct table_list *table_listp = 0;
 
 unsigned long timeout = DFLT_TIMEOUT;
 
 int main(int argc, char *argv[]) {
-	netsnmp_session session, *ss;
+	netsnmp_session session;
+	netsnmp_session *ss;
 	netsnmp_pdu *pdu;
 	netsnmp_pdu *response;
 	netsnmp_variable_list *vars;
@@ -116,10 +117,16 @@ int main(int argc, char *argv[]) {
 	int warnflag = 0;
 	int endoftable = 0;
 	int opt;
-	char *hostname = 0, *community = 0;
-	char *user = 0, *auth_proto = 0, *auth_pass = 0, *priv_proto = 0, *priv_pass = 0;
+	char *hostname = 0;
+	char *community = 0;
+	char *user = 0;
+	char *auth_proto = 0;
+	char *auth_pass = 0;
+	char *priv_proto = 0;
+	char *priv_pass = 0;
 
-	struct OIDStruct *OIDp, *OIDtable;
+	struct OIDStruct *OIDp;
+	struct OIDStruct *OIDtable;
 	struct OIDStruct lastOid; /* save the last OID retrieved in case our bulk
 								 get was insufficient */
 
