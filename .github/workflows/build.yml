@@ -27,7 +27,7 @@ jobs:
     - name: Make
       run: make
 
-    - name: Start simmulation
+    - name: Start simulation
       run: |
         setup-snmpsim-data /tmp/data
         snmpsim-command-responder --daemonize --pid-file /tmp/snmp --data-dir=/tmp/data/network/switch --agent-udpv4-endpoint=127.0.0.1:1611
