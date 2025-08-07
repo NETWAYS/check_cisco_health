@@ -1,2 +1,2 @@
-snmpsim-data-lextudio
-snmpsim-lextudio
+snmpsim-data
+snmpsim
