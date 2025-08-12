@@ -15,10 +15,6 @@ TARGETS=check_cisco_health
 NETSNMP_CONFIG_CFLAGS != net-snmp-config --cflags
 CFLAGS += -I. $(NETSNMP_CONFIG_CFLAGS) -Wall -Wextra
 BUILDLIBS != net-snmp-config --libs
-BUILDAGENTLIBS != net-snmp-config --agent-libs
-
-# shared library flags (assumes gcc)
-DLFLAGS=-fPIC -shared
 
 .PHONY: debug clean all
 all: build
@@ -30,7 +26,6 @@ check_cisco_health: check_cisco_health.o
 debug: CFLAGS += -DDEBUG
 debug: CFLAGS += -O0
 debug: clean all
-
 
 clean:
 	rm -f $(OBJS1) $(TARGETS)
