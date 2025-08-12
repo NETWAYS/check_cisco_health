@@ -173,7 +173,7 @@ opt_parse_wrapper parse_commandline(int argc, char *argv[]) {
 
 	if (!(result.config.hostname && (result.config.community || result.config.user))) {
 		result.errorcode = 1;
-		printf("Missing either hostname or community or user");
+		printf("Missing either hostname or community or user\n\n");
 	}
 
 	return result;
