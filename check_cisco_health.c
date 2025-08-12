@@ -180,7 +180,6 @@ opt_parse_wrapper parse_commandline(int argc, char *argv[]) {
 }
 
 int main(int argc, char *argv[]) {
-
 	opt_parse_wrapper conf_wrap = parse_commandline(argc, argv);
 
 	if (conf_wrap.errorcode != 0) {
