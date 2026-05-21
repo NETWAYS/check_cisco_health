@@ -664,7 +664,7 @@ int parseoids(int i, char *oid_list, struct OIDStruct *query) {
 
 /* only use for strings we already know the size of */
 void strcpy_nospaces(char *dest, char *src) {
-	static unsigned char allowed[256] =
+	static unsigned char allowed[257] =
 		"_________________________________!_#_%__()*+,-.-0123456789___=_?@"
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^__abcdefghijklmnopqrstuvwxyz{_}________"
 		"______________________________________________________________________"
